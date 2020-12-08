@@ -1,5 +1,7 @@
 # Fast Raf
 
+![GitHub package.json version](https://img.shields.io/github/package-json/v/myWsq/fast-raf) ![NPM](https://img.shields.io/npm/l/fast-raf)
+
 A better requestAnimationFrame. Fast Raf can merge multiple requestAnimationframes into one for you. And the usage is the same as before.
 
 # Live Demo
