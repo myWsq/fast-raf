@@ -1,0 +1,17 @@
+html {
+  font-size: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: red;
+}
+
+nav a.active {
+  color: dodgerblue;
+}
+
+.time-text {
+  display: inline-block;
+  width: 6em;
+}
