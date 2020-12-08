@@ -8,11 +8,11 @@ Check [this demo](https://mywsq.github.io/fast-raf/example/). Open your devtools
 
 **Fast Raf Disabled**
 
-![disabled](./disabled.jpg)
+![disabled](./fast-raf-disabled.jpg)
 
 **Fast Raf Enabled**
 
-![before](./enabled.jpg)
+![enabled](./fast-raf-enabled.jpg)
 
 ## Installation
 
