@@ -8,6 +8,8 @@ function createStopWatch() {
       <button class="stop">Pause</button>
     </li>
   `;
+
+  let isStarted = false;
   let startTime = 0;
   let time = 0;
   let handler;
@@ -24,22 +26,22 @@ function createStopWatch() {
       .getSeconds()
       .toString()
       .padStart(2, "0")}:${date.getMilliseconds()}`;
-    handler = requestAnimationFrame(() => {
-      step();
-    });
+    handler = requestAnimationFrame(step);
   }
 
   function start() {
-    startTime = Date.now() - time;
-    step();
+    if (!isStarted) {
+      startTime = Date.now() - time;
+      isStarted = true;
+      step();
+    }
   }
 
   container.querySelector("button.start").addEventListener("click", start);
 
   function stop() {
-    if (handler) {
-      cancelAnimationFrame(handler);
-    }
+    isStarted = false;
+    cancelAnimationFrame(handler);
   }
 
   container.querySelector("button.stop").addEventListener("click", stop);
