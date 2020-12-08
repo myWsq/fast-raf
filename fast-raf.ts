@@ -17,13 +17,13 @@ const Raf =
 let isHandlerPending = false;
 
 /** Folme global event bus. */
-let FOLME_EVENT_BUS: RafEventBus = [];
+let FAST_RAF_EVENT_BUS: RafEventBus = [];
 
 if (!isSSR) {
   if (!window.FAST_RAF_EVENT_BUS) {
     window.FAST_RAF_EVENT_BUS = [];
   }
-  FOLME_EVENT_BUS = window.FAST_RAF_EVENT_BUS;
+  FAST_RAF_EVENT_BUS = window.FAST_RAF_EVENT_BUS;
 }
 
 /**
@@ -32,9 +32,9 @@ if (!isSSR) {
  * @param event Event
  */
 function pushToEventBus(event: Event) {
-  FOLME_EVENT_BUS.push(event);
+  FAST_RAF_EVENT_BUS.push(event);
   eventHandler();
-  return FOLME_EVENT_BUS.indexOf(event);
+  return FAST_RAF_EVENT_BUS.indexOf(event);
 }
 
 /**
@@ -45,7 +45,7 @@ function pushToEventBus(event: Event) {
  function deleteFromEventBus(index: number) {
   if (index >= 0) {
     // Can't delete, because events behind this will be ignored.
-    FOLME_EVENT_BUS[index] = null;
+    FAST_RAF_EVENT_BUS[index] = null;
   }
 }
 
@@ -54,14 +54,14 @@ function pushToEventBus(event: Event) {
  * If push a new event in sub event, it should be called in next tick.
  */
 function eventConsumer(time: number) {
-  const length = FOLME_EVENT_BUS.length;
+  const length = FAST_RAF_EVENT_BUS.length;
   for (let i = 0; i < length; i++) {
-    const e = FOLME_EVENT_BUS[i];
+    const e = FAST_RAF_EVENT_BUS[i];
     e?.(time);
   }
-  FOLME_EVENT_BUS.splice(0, length);
+  FAST_RAF_EVENT_BUS.splice(0, length);
   isHandlerPending = false;
-  if (FOLME_EVENT_BUS.length) {
+  if (FAST_RAF_EVENT_BUS.length) {
     eventHandler();
   }
 }
