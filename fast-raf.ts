@@ -37,7 +37,7 @@ if (!isSSR) {
 function requestAnimationFrame(event: Event) {
   const count = window.FAST_RAF.count + 1;
   window.FAST_RAF.map[count] = event;
-  window.FAST_RAF.count = count - count;
+  window.FAST_RAF.count = count;
   eventHandler();
   return count;
 }
