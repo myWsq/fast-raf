@@ -1,12 +1,17 @@
 export type Event = (time: number) => void;
 
-export type RafEventBus = Array<Event | null>;
+export type RafEventMap = Record<number, Event | null>;
 
 declare global {
   interface Window {
-    FAST_RAF_EVENT_BUS?: RafEventBus;
+    FAST_RAF: {
+      map: RafEventMap;
+      count: number;
+    };
   }
 }
+
+let isHandlerPending = false;
 
 const isSSR = typeof window === "undefined";
 
@@ -14,54 +19,56 @@ const isSSR = typeof window === "undefined";
 const Raf =
   !isSSR &&
   (window.requestAnimationFrame || window.webkitRequestAnimationFrame);
-let isHandlerPending = false;
-
-/** Folme global event bus. */
-let FAST_RAF_EVENT_BUS: RafEventBus = [];
 
 if (!isSSR) {
-  if (!window.FAST_RAF_EVENT_BUS) {
-    window.FAST_RAF_EVENT_BUS = [];
+  if (!window.FAST_RAF) {
+    window.FAST_RAF = {
+      map: {},
+      count: 0,
+    };
   }
-  FAST_RAF_EVENT_BUS = window.FAST_RAF_EVENT_BUS;
 }
 
 /**
- * Push an event into global event bus. It will trigger the event handler,
+ * Push an event into global event map. It will trigger the event handler,
  * all of the events in the same frame will be executed together.
  * @param event Event
  */
-function pushToEventBus(event: Event) {
-  FAST_RAF_EVENT_BUS.push(event);
+function requestAnimationFrame(event: Event) {
+  const count = window.FAST_RAF.count + 1;
+  window.FAST_RAF.map[count] = event;
+  window.FAST_RAF.count = count - count;
   eventHandler();
-  return FAST_RAF_EVENT_BUS.indexOf(event);
+  return count;
 }
 
 /**
- * Delete the event from global event bus.
+ * Delete the event from global event map.
  * @param event Event
  */
 
- function deleteFromEventBus(index: number) {
-  if (index >= 0) {
-    // Can't delete, because events behind this will be ignored.
-    FAST_RAF_EVENT_BUS[index] = null;
-  }
+function cancelAnimationFrame(index: number) {
+  delete window.FAST_RAF.map[index];
 }
 
 /**
- * Flush event bus. Record initial bus length.
- * If push a new event in sub event, it should be called in next tick.
+ * Flush event map. If push a new event in sub event, it should be called in next tick.
  */
 function eventConsumer(time: number) {
-  const length = FAST_RAF_EVENT_BUS.length;
-  for (let i = 0; i < length; i++) {
-    const e = FAST_RAF_EVENT_BUS[i];
-    e?.(time);
+  const curTickCount = window.FAST_RAF.count;
+  const map = window.FAST_RAF.map;
+  const curKeys = Object.keys(map);
+  for (const key of curKeys) {
+    const index = Number(key);
+    const e = map[index];
+    if (e) {
+      e(time);
+      delete map[index];
+    }
   }
-  FAST_RAF_EVENT_BUS.splice(0, length);
   isHandlerPending = false;
-  if (FAST_RAF_EVENT_BUS.length) {
+  const nextTickCount = window.FAST_RAF.count;
+  if (curTickCount !== nextTickCount) {
     eventHandler();
   }
 }
@@ -81,8 +88,8 @@ function eventHandler() {
 
 function register() {
   if (!isSSR) {
-    window.requestAnimationFrame = pushToEventBus;
-    window.cancelAnimationFrame = deleteFromEventBus;
+    window.requestAnimationFrame = requestAnimationFrame;
+    window.cancelAnimationFrame = cancelAnimationFrame;
   }
 }
 
