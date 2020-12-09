@@ -31,7 +31,7 @@ import "fast-raf";
 You can also use `script` tag
 
 ```html
-<script src="https://unpkg.com/fast-raf@1.0.0/dist/fast-raf.js"></script>
+<script src="https://unpkg.com/fast-raf@1.1.1/dist/fast-raf.js"></script>
 ```
 
 ## License
