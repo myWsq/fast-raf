@@ -17,7 +17,7 @@
   "umd:main": "dist/fast-raf.js",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "dev": "microbundle watch",
+    "dev": "microbundle -f umd --no-compress watch",
     "build": "microbundle -f umd"
   },
   "devDependencies": {
